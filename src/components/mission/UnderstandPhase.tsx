@@ -43,7 +43,7 @@ export function UnderstandPhase({ questions, onComplete }: UnderstandPhaseProps)
     <div className="animate-slide-up">
       <div className="mb-6">
         <span className="text-xs font-mono text-forge-accent uppercase tracking-widest">
-          Phase 1 — Understand the Problem
+          Phase 1: Understand the Problem
         </span>
         <h2 className="text-xl font-bold mt-1">Analyze Before You Solve</h2>
         <p className="text-forge-muted text-sm mt-1">

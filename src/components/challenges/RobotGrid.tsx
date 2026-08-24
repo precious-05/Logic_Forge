@@ -159,7 +159,7 @@ export function RobotGrid({
             />
           ))}
 
-          {/* Robot overlay — smooth glide between cells with animated SVG character */}
+          {/* Robot overlay: smooth glide between cells with animated SVG character */}
           {robotState && (
             <div
               className={`robot-entity absolute flex items-center justify-center ${

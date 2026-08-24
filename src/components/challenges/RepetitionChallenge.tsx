@@ -16,7 +16,7 @@ export function RepetitionChallenge({ repetition, onSuccess }: RepetitionChallen
   const handleSubmit = () => {
     if (selected === null) return
     if (selected === repetition.correctIndex) {
-      setFeedback('Correct. The loop repeats the three actions exactly 5 times — once per box.')
+      setFeedback('Correct. The loop repeats the three actions exactly 5 times: once per box.')
       setSuccess(true)
       setTimeout(onSuccess, 1000)
     } else {

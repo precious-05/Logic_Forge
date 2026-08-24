@@ -182,7 +182,7 @@ export function MissionPage() {
       <div className="mb-6">
         <span className="text-xs font-mono text-forge-accent">
           Mission {String(mission.number).padStart(2, '0')}
-          {challenge.isBoss && ' — FINAL BOSS'}
+          {challenge.isBoss && ' : FINAL BOSS'}
         </span>
         <h1 className="text-2xl md:text-3xl font-bold mt-1">{mission.title}</h1>
         <p className="text-forge-muted text-sm mt-1">{mission.subtitle}</p>
@@ -265,7 +265,7 @@ export function MissionPage() {
         <div className="animate-slide-up">
           <div className="mb-6">
             <span className="text-xs font-mono text-forge-accent uppercase tracking-widest">
-              Phase — Solve the Challenge
+              Phase: Solve the Challenge
             </span>
             <h2 className="text-xl font-bold mt-1">Execute Your Solution</h2>
           </div>

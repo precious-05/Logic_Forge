@@ -30,6 +30,8 @@ export interface PseudocodeLine {
   editable?: boolean
   placeholder?: string
   correctAnswer?: string
+  acceptedAnswers?: string[]
+  formatHint?: string
 }
 
 export interface Hint {

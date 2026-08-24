@@ -1,14 +1,14 @@
 # LogicForge
 
-A gamified learning platform for absolute programming beginners. Develop computational thinking through interactive, programming-style challenges — before writing a single line of code.
+A gamified learning platform for absolute programming beginners. Develop computational thinking through interactive, programming-style challenges: before writing a single line of code.
 
 ## Features
 
 - **8 missions + Final Boss** covering algorithms, problem analysis, debugging, decisions, loops, and variables
-- **Challenge-first learning** — discover concepts after solving problems
-- **Multi-phase missions** — Understand → Logic → Pseudocode → Challenge → Concept
-- **Game mechanics** — XP, levels, achievements, streaks, progressive hints
-- **Persistent progress** — saved in localStorage
+- **Challenge-first learning** - discover concepts after solving problems
+- **Multi-phase missions** - Understand -> Logic -> Pseudocode -> Challenge -> Concept
+- **Game mechanics** - XP, levels, achievements, streaks, progressive hints
+- **Persistent progress** - saved in localStorage
 
 ## Quick Start
 
@@ -36,7 +36,7 @@ src/
   types/           # TypeScript definitions
 ```
 
-Challenge data is separated from UI — add new levels by extending `src/data/levels/`.
+Challenge data is separated from UI - add new levels by extending `src/data/levels/`.
 
 ## Tech Stack
 

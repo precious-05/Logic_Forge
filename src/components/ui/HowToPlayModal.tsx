@@ -121,7 +121,7 @@ const DEMO_STEPS: DemoStep[] = [
   {
     action: 'forward',
     label: 'MOVE FORWARD',
-    explanation: 'Robot steps into the Exit Portal — Mission Accomplished!',
+    explanation: 'Robot steps into the Exit Portal: Mission Accomplished!',
     row: 2,
     col: 3,
     dir: 'east',

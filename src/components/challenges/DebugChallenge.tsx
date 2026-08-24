@@ -20,7 +20,7 @@ export function DebugChallenge({ debug, onSuccess }: DebugChallengeProps) {
       setFeedback('Correct. That line contains the logical error. Now select the fix.')
       setPhase('fix')
     } else {
-      setFeedback('That step is logically correct. Trace the calculation again — which line uses the wrong operation or missing value?')
+      setFeedback('That step is logically correct. Trace the calculation again: which line uses the wrong operation or missing value?')
     }
   }
 

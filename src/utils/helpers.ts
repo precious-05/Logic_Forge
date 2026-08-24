@@ -137,7 +137,46 @@ export function getDirectionSymbol(dir: Direction): string {
 }
 
 export function normalizeAnswer(text: string): string {
-  return text.trim().replace(/\s+/g, ' ').toLowerCase()
+  return text
+    .trim()
+    .toLowerCase()
+    .replace(/["']/g, '') // remove quotes
+    .replace(/\s*([=+\-*/(),><])\s*/g, '$1') // normalize space around operators
+    .replace(/\s+/g, ' ')
+}
+
+export function checkPseudocodeAnswer(
+  input: string,
+  expected: string,
+  acceptedAnswers?: string[]
+): boolean {
+  if (!input || !input.trim()) return false
+
+  const normInput = normalizeAnswer(input)
+  const normExpected = normalizeAnswer(expected)
+
+  // Direct normalized match
+  if (normInput === normExpected) return true
+
+  // Check custom accepted answers list
+  if (acceptedAnswers && acceptedAnswers.some((ans) => normalizeAnswer(ans) === normInput)) {
+    return true
+  }
+
+  // If expected has an assignment like "var = expr", check if user just typed "expr" or "var = expr"
+  if (normExpected.includes('=')) {
+    const parts = normExpected.split('=')
+    const rhs = parts.slice(1).join('=')
+    if (normInput === rhs) return true
+  }
+
+  // If expected has DISPLAY/OUTPUT like "display pass", check if user just typed "pass" or "display pass"
+  if (normExpected.startsWith('display') || normExpected.startsWith('output') || normExpected.startsWith('print')) {
+    const withoutKeyword = normExpected.replace(/^(display|output|print)\s*/, '')
+    if (normInput === withoutKeyword) return true
+  }
+
+  return false
 }
 
 export function arraysEqual<T>(a: T[], b: T[]): boolean {

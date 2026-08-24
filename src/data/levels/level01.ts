@@ -26,7 +26,7 @@ Create a sequence of instructions that allows the robot to complete the mission.
   ],
   conceptExplanation: `You just created an algorithm.
 
-An algorithm is a step-by-step sequence of instructions used to solve a problem. Every program you will ever write is built from algorithms — ordered steps that transform inputs into outputs.`,
+An algorithm is a step-by-step sequence of instructions used to solve a problem. Every program you will ever write is built from algorithms - ordered steps that transform inputs into outputs.`,
   conceptsLearned: ['Algorithms', 'Sequencing', 'Step-by-step thinking'],
   understand: [
     {
@@ -119,7 +119,7 @@ They identify inputs (data given), outputs (results needed), and the operations 
       options: ['500 only', '350 only', 'Both 500 and 350', 'Remaining money'],
       correctIndex: 2,
       feedback: {
-        correct: 'Both values are given — the money available and the item cost.',
+        correct: 'Both values are given: the money available and the item cost.',
         incorrect: 'Inputs are the values the program receives. What numbers are provided in the problem?',
       },
     },
@@ -152,7 +152,22 @@ They identify inputs (data given), outputs (results needed), and the operations 
       { id: 'l1', text: 'START', editable: false },
       { id: 'l2', text: 'INPUT money', editable: false },
       { id: 'l3', text: 'INPUT price', editable: false },
-      { id: 'l4', text: 'remaining = money - price', editable: true, placeholder: 'remaining = ?' },
+      {
+        id: 'l4',
+        text: 'remaining = money - price',
+        editable: true,
+        placeholder: 'remaining = money - price',
+        formatHint: 'remaining = money - price (or: money - price)',
+        acceptedAnswers: [
+          'remaining = money - price',
+          'remaining = money - cost',
+          'remaining = money - notebook',
+          'money - price',
+          'money - cost',
+          '500 - 350',
+          'remaining = 500 - 350',
+        ],
+      },
       { id: 'l5', text: 'DISPLAY remaining', editable: false },
       { id: 'l6', text: 'END', editable: false },
     ],
@@ -180,7 +195,7 @@ Identify the inputs, outputs, and operation for this program.`,
   ],
   conceptExplanation: `Programs transform inputs into outputs through operations.
 
-Recognizing this pattern — Input → Process → Output — is the foundation of every program you'll write. The process step applies logic, calculations, or decisions to produce the result.`,
+Recognizing this pattern: Input -> Process -> Output is the foundation of every program you'll write. The process step applies logic, calculations, or decisions to produce the result.`,
   conceptsLearned: ['Input/Output model', 'Operations', 'Data transformation'],
   understand: [
     {
@@ -192,21 +207,21 @@ Recognizing this pattern — Input → Process → Output — is the foundation 
     {
       id: 'u2',
       question: 'What is the output?',
-      options: ['Celsius', 'Fahrenheit', '32', '9/5'],
+      options: ['Celsius', 'Fahrenheit', 'The number 32', 'The number 9/5'],
       correctIndex: 1,
     },
     {
       id: 'u3',
-      question: 'What type of operation is used?',
-      options: ['String comparison', 'Mathematical calculation', 'Loop repetition', 'File reading'],
+      question: 'What operation combines Celsius and 32?',
+      options: ['Only multiplication', 'Multiplication and addition', 'Only division', 'Subtraction'],
       correctIndex: 1,
     },
   ],
   logicBlocks: {
     blocks: [
       { id: 'start', label: 'START', type: 'start' },
-      { id: 'b1', label: 'Read Celsius temperature', type: 'input' },
-      { id: 'b2', label: 'Apply conversion formula', type: 'process' },
+      { id: 'b1', label: 'Get Celsius temperature', type: 'input' },
+      { id: 'b2', label: 'Calculate Fahrenheit = (Celsius * 9/5) + 32', type: 'process' },
       { id: 'b3', label: 'Display Fahrenheit', type: 'output' },
       { id: 'end', label: 'END', type: 'end' },
     ],
@@ -216,7 +231,23 @@ Recognizing this pattern — Input → Process → Output — is the foundation 
     template: [
       { id: 'l1', text: 'START', editable: false },
       { id: 'l2', text: 'INPUT celsius', editable: false },
-      { id: 'l3', text: 'fahrenheit = (celsius * 9/5) + 32', editable: true, placeholder: 'fahrenheit = ?' },
+      {
+        id: 'l3',
+        text: 'fahrenheit = (celsius * 9/5) + 32',
+        editable: true,
+        placeholder: 'fahrenheit = (celsius * 9/5) + 32',
+        formatHint: 'fahrenheit = (celsius * 9/5) + 32 (or: (celsius * 9/5) + 32)',
+        acceptedAnswers: [
+          'fahrenheit = (celsius * 9/5) + 32',
+          '(celsius * 9/5) + 32',
+          'fahrenheit = celsius * 9/5 + 32',
+          'celsius * 9/5 + 32',
+          'fahrenheit = (celsius * 9 / 5) + 32',
+          '(celsius * 9 / 5) + 32',
+          'fahrenheit = (celsius * 1.8) + 32',
+          '(celsius * 1.8) + 32',
+        ],
+      },
       { id: 'l4', text: 'DISPLAY fahrenheit', editable: false },
       { id: 'l5', text: 'END', editable: false },
     ],
@@ -248,7 +279,7 @@ The steps below are scrambled. Arrange them in the correct execution order.`,
   ],
   conceptExplanation: `In programming, sequence matters.
 
-Instructions execute one after another in order. Changing the order can produce completely wrong results — just like pouring water before boiling it. This is why algorithms require careful ordering.`,
+Instructions execute one after another in order. Changing the order can produce completely wrong results: just like pouring water before boiling it. This is why algorithms require careful ordering.`,
   conceptsLearned: ['Execution order', 'Sequential logic', 'Dependencies between steps'],
   understand: [
     {
@@ -260,7 +291,7 @@ Instructions execute one after another in order. Changing the order can produce 
     {
       id: 'u2',
       question: 'What happens if you pour water before boiling it?',
-      options: ['Better tea', 'The step fails logically — water isn\'t hot yet', 'Nothing changes', 'Sugar dissolves faster'],
+      options: ['Better tea', 'The step fails logically: water isn\'t hot yet', 'Nothing changes', 'Sugar dissolves faster'],
       correctIndex: 1,
     },
   ],
@@ -316,7 +347,7 @@ The program produces wrong results. Find and fix the bug.`,
   ],
   conceptExplanation: `Debugging is the process of finding and fixing errors in logic.
 
-Bugs aren't always syntax errors — often they're logical mistakes, like forgetting to include a value. Reading through your logic step by step, checking inputs and operations, is a core programming skill.`,
+Bugs aren't always syntax errors - often they're logical mistakes, like forgetting to include a value. Reading through your logic step by step, checking inputs and operations, is a core programming skill.`,
   conceptsLearned: ['Debugging', 'Logical errors', 'Tracing execution'],
   understand: [
     {
@@ -428,7 +459,23 @@ Conditional logic (if/else) lets a program choose different actions based on whe
       { id: 'l3', text: 'IF marks >= 50', editable: false },
       { id: 'l4', text: '    DISPLAY "Pass"', editable: false },
       { id: 'l5', text: 'ELSE', editable: false },
-      { id: 'l6', text: '    DISPLAY "Fail"', editable: true, placeholder: '    DISPLAY ?' },
+      {
+        id: 'l6',
+        text: '    DISPLAY "Fail"',
+        editable: true,
+        placeholder: '    DISPLAY "Fail"',
+        formatHint: 'DISPLAY "Fail" (or: "Fail")',
+        acceptedAnswers: [
+          'DISPLAY "Fail"',
+          'DISPLAY \'Fail\'',
+          'DISPLAY Fail',
+          '"Fail"',
+          '\'Fail\'',
+          'Fail',
+          'PRINT "Fail"',
+          'OUTPUT "Fail"',
+        ],
+      },
       { id: 'l7', text: 'END IF', editable: false },
       { id: 'l8', text: 'END', editable: false },
     ],
@@ -461,7 +508,7 @@ Identify the repeating pattern and select the correct loop representation.`,
   ],
   conceptExplanation: `Loops eliminate repetitive instructions.
 
-When the same steps must happen multiple times, a loop executes them automatically. This is one of the most powerful concepts in programming — it turns dozens of lines into a few.`,
+When the same steps must happen multiple times, a loop executes them automatically. This is one of the most powerful concepts in programming - it turns dozens of lines into a few.`,
   conceptsLearned: ['Repetition', 'Loops', 'Pattern recognition'],
   understand: [
     {
@@ -515,7 +562,7 @@ What are the new values of score, lives, and coins after these events?`,
   ],
   conceptExplanation: `Variables are named containers that store data.
 
-Programs use variables to remember values that change during execution — scores, counts, user input. Understanding how values change is essential for predicting what a program will do.`,
+Programs use variables to remember values that change during execution - scores, counts, user input. Understanding how values change is essential for predicting what a program will do.`,
   conceptsLearned: ['Variables', 'State management', 'Value mutation'],
   understand: [
     {
@@ -603,7 +650,7 @@ If no space is available, the system displays "Parking Full".`,
   ],
   conceptExplanation: `You are no longer just following instructions.
 
-You analyzed a problem, identified inputs and outputs, built logic, wrote pseudocode, and tested a solution. This is computational thinking — the skill that underlies all programming.`,
+You analyzed a problem, identified inputs and outputs, built logic, wrote pseudocode, and tested a solution. This is computational thinking: the skill that underlies all programming.`,
   conceptsLearned: [
     'Problem analysis',
     'Variables & state',
@@ -655,7 +702,21 @@ You analyzed a problem, identified inputs and outputs, built logic, wrote pseudo
       { id: 'l2', text: 'INPUT vehicle_arrives', editable: false },
       { id: 'l3', text: 'IF spaces > 0', editable: false },
       { id: 'l4', text: '    ALLOW entry', editable: false },
-      { id: 'l5', text: '    spaces = spaces - 1', editable: true, placeholder: '    spaces = ?' },
+      {
+        id: 'l5',
+        text: '    spaces = spaces - 1',
+        editable: true,
+        placeholder: '    spaces = spaces - 1',
+        formatHint: 'spaces = spaces - 1 (or: spaces - 1)',
+        acceptedAnswers: [
+          'spaces = spaces - 1',
+          'spaces = spaces-1',
+          'spaces - 1',
+          'spaces-1',
+          'spaces -= 1',
+          'spaces--',
+        ],
+      },
       { id: 'l6', text: 'ELSE', editable: false },
       { id: 'l7', text: '    DISPLAY "Parking Full"', editable: false },
       { id: 'l8', text: 'END IF', editable: false },

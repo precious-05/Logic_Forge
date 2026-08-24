@@ -103,7 +103,7 @@ export function LogicPhase({ blocks, correctOrder, onComplete }: LogicPhaseProps
     <div className="animate-slide-up">
       <div className="mb-6">
         <span className="text-xs font-mono text-forge-accent uppercase tracking-widest">
-          Phase 2 — Build the Logic
+          Phase 2: Build the Logic
         </span>
         <h2 className="text-xl font-bold mt-1">Arrange the Logic Flow</h2>
         <p className="text-forge-muted text-sm mt-1">

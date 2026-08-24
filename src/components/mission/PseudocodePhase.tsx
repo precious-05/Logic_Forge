@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { CheckCircle2 } from 'lucide-react'
+import { CheckCircle2, Lightbulb, Code2 } from 'lucide-react'
 import { Button } from '../ui/Button'
 import type { PseudocodeLine } from '../../types'
-import { normalizeAnswer } from '../../utils/helpers'
+import { checkPseudocodeAnswer } from '../../utils/helpers'
 
 interface PseudocodePhaseProps {
   template: PseudocodeLine[]
@@ -31,7 +31,7 @@ export function PseudocodePhase({
       <div className="animate-slide-up">
         <div className="mb-6">
           <span className="text-xs font-mono text-forge-accent uppercase tracking-widest">
-            Phase 3 — Pseudocode
+            Phase 3: Pseudocode
           </span>
           <h2 className="text-xl font-bold mt-1">Review the Pseudocode</h2>
         </div>
@@ -51,48 +51,61 @@ export function PseudocodePhase({
   const handleVerify = () => {
     const allCorrect = editableLines.every((line, idx) => {
       const expected = correctLines[idx] ?? line.correctAnswer ?? line.text
-      return normalizeAnswer(values[line.id] ?? '') === normalizeAnswer(expected)
+      return checkPseudocodeAnswer(values[line.id] ?? '', expected, line.acceptedAnswers)
     })
 
     if (allCorrect) {
       setFeedback('Pseudocode is correct. Your logic translates cleanly to executable steps.')
       setVerified(true)
     } else {
-      setFeedback('One or more lines do not match the required logic. Review inputs, operations, and outputs.')
+      setFeedback('One or more lines do not match the required logic. Check the format hint below each field.')
     }
   }
 
   return (
     <div className="animate-slide-up">
       <div className="mb-6">
-        <span className="text-xs font-mono text-forge-accent uppercase tracking-widest">
-          Phase 3 — Pseudocode
+        <span className="text-xs font-mono text-forge-accent uppercase tracking-widest flex items-center gap-1.5">
+          <Code2 className="w-3.5 h-3.5" />
+          Phase 3: Pseudocode
         </span>
         <h2 className="text-xl font-bold mt-1">Complete the Pseudocode</h2>
         <p className="text-forge-muted text-sm mt-1">
-          Fill in the missing lines. Perfect syntax is not required — focus on the logic.
+          Fill in the missing lines. Spacing and casing are flexible - focus on the logic.
         </p>
       </div>
 
-      <div className="font-mono text-sm bg-forge-bg rounded-xl p-5 border border-forge-border mb-4 space-y-2">
+      <div className="font-mono text-sm bg-forge-bg rounded-xl p-5 border border-forge-border mb-4 space-y-3">
         {template.map((line, idx) => (
-          <div key={line.id} className="flex items-center gap-3">
-            <span className="text-forge-muted select-none w-6 text-right">{String(idx + 1).padStart(2, '0')}</span>
-            {line.editable ? (
-              <input
-                type="text"
-                value={values[line.id] ?? ''}
-                onChange={(e) => {
-                  setValues((v) => ({ ...v, [line.id]: e.target.value }))
-                  setVerified(false)
-                  setFeedback(null)
-                }}
-                placeholder={line.placeholder ?? '...'}
-                className="flex-1 bg-forge-card border border-forge-border rounded px-3 py-1.5 text-forge-accent focus:outline-none focus:border-forge-accent/50"
-              />
-            ) : (
-              <span className="text-forge-text">{line.text}</span>
-            )}
+          <div key={line.id} className="space-y-1">
+            <div className="flex items-center gap-3">
+              <span className="text-forge-muted select-none w-6 text-right font-semibold">
+                {String(idx + 1).padStart(2, '0')}
+              </span>
+              {line.editable ? (
+                <div className="flex-1 flex flex-col gap-1">
+                  <input
+                    type="text"
+                    value={values[line.id] ?? ''}
+                    onChange={(e) => {
+                      setValues((v) => ({ ...v, [line.id]: e.target.value }))
+                      setVerified(false)
+                      setFeedback(null)
+                    }}
+                    placeholder={line.placeholder ?? 'Enter instruction expression...'}
+                    className="w-full bg-forge-card border border-forge-border rounded-lg px-3.5 py-2 text-forge-accent font-mono focus:outline-none focus:border-forge-accent focus:neon-glow-accent transition-all"
+                  />
+                  {line.formatHint && (
+                    <div className="flex items-center gap-1 text-[11px] text-forge-muted font-sans ml-1">
+                      <Lightbulb className="w-3 h-3 text-forge-warning shrink-0" />
+                      <span>Format hint: <code className="text-forge-accent font-mono">{line.formatHint}</code></span>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <span className="text-forge-text py-1.5">{line.text}</span>
+              )}
+            </div>
           </div>
         ))}
       </div>
