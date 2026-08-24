@@ -160,7 +160,7 @@ export function SequenceChallenge({ robot, onSuccess }: SequenceChallengeProps) 
           <div className="mb-4 p-2.5 rounded-lg bg-forge-card/80 border border-forge-border flex items-start gap-2 text-xs text-forge-muted">
             <Lightbulb className="w-4 h-4 text-forge-warning shrink-0 mt-0.5" />
             <p>
-              <strong className="text-forge-text">Movement Tip:</strong> Robot moves in its facing direction! To go <strong>Down 👇</strong>, use <span className="text-forge-warning font-mono">TURN RIGHT</span> first, then <span className="text-forge-accent font-mono">MOVE FORWARD</span>.
+              <strong className="text-forge-text">Movement Rule:</strong> The robot always moves forward relative to its facing direction. To move <strong>Downwards</strong>, add <span className="text-forge-warning font-mono">TURN RIGHT</span> first, followed by <span className="text-forge-accent font-mono">MOVE FORWARD</span>.
             </p>
           </div>
 

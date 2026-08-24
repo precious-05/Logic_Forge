@@ -2,11 +2,11 @@ import { useState, useEffect } from 'react'
 import { Sparkles, Terminal, Shield, Zap, Gamepad2 } from 'lucide-react'
 
 const ROBOT_QUOTES = [
-  "Cadet! System is 100% ONLINE! 🚀",
-  "Ready to train your algorithmic brain? 🧠⚡",
-  "No syntax errors allowed in this sector! 🤖",
-  "Analyzing logic circuits... All clear! ✨",
-  "Grab your badge and let's conquer Level 01! 🎮",
+  "Cadet! System is 100% ONLINE!",
+  "Ready to train your algorithmic thinking?",
+  "No syntax errors allowed in this sector!",
+  "Analyzing logic circuits... All clear!",
+  "Grab your badge and let's conquer Level 01!",
 ]
 
 export function HeroRobotIllustration() {
