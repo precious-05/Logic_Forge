@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LogicForge Cinematic Showcase Video Studio</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #060910;
+      color: #e2e8f0;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      overflow: hidden;
+      width: 1280px;
+      height: 720px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #main-canvas {
+      width: 1280px;
+      height: 720px;
+      background: #0a0e17;
+      display: block;
+    }
+    #status-overlay {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: rgba(0,0,0,0.8);
+      color: #00d4aa;
+      padding: 6px 12px;
+      font-family: monospace;
+      font-size: 12px;
+      border-radius: 4px;
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+  <div id="status-overlay">INITIALIZING VIDEO ENGINE...</div>
+  <canvas id="main-canvas" width="1280" height="720"></canvas>
+
+  <script>
+    const statusEl = document.getElementById('status-overlay');
+    const canvas = document.getElementById('main-canvas');
+    const ctx = canvas.getContext('2d');
+
+    function setStatus(text) {
+      statusEl.textContent = text;
+      console.log(text);
+    }
+
+    // Load actual website screenshots
+    const imgDashboard = new Image();
+    imgDashboard.src = '/screenshots/dashboard.png';
+
+    const imgRobot = new Image();
+    imgRobot.src = '/screenshots/mission-robot.png';
+
+    const imgPseudocode = new Image();
+    imgPseudocode.src = '/screenshots/mission-pseudocode.png';
+
+    function loadImages() {
+      return Promise.all([
+        new Promise(r => { imgDashboard.onload = r; imgDashboard.onerror = r; }),
+        new Promise(r => { imgRobot.onload = r; imgRobot.onerror = r; }),
+        new Promise(r => { imgPseudocode.onload = r; imgPseudocode.onerror = r; }),
+      ]);
+    }
+
+    // Cyber particle background
+    const particles = Array.from({ length: 40 }, () => ({
+      x: Math.random() * 1280,
+      y: Math.random() * 720,
+      char: ['01', '{ }', '< />', '=>', '0', '1', 'fn'][Math.floor(Math.random() * 7)],
+      opacity: Math.random() * 0.5 + 0.2,
+      speedY: Math.random() * 1.5 + 0.5,
+    }));
+
+    function drawParticles() {
+      ctx.fillStyle = '#00d4aa';
+      ctx.font = '11px monospace';
+      particles.forEach(p => {
+        ctx.globalAlpha = p.opacity * 0.4;
+        ctx.fillText(p.char, p.x, p.y);
+        p.y -= p.speedY;
+        if (p.y < 0) {
+          p.y = 720;
+          p.x = Math.random() * 1280;
+        }
+      });
+      ctx.globalAlpha = 1;
+    }
+
+    function easeInOutCubic(t) {
+      return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    }
+
+    function easeOutQuad(t) {
+      return 1 - (1 - t) * (1 - t);
+    }
+
+    function drawHUD(tag, title, desc, progress = 0) {
+      ctx.save();
+      // Top Cyber Badge
+      ctx.fillStyle = 'rgba(10, 14, 23, 0.88)';
+      ctx.strokeStyle = 'rgba(0, 212, 170, 0.5)';
+      ctx.lineWidth = 1;
+      
+      ctx.beginPath();
+      ctx.roundRect(30, 24, 260, 32, 16);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = '#00d4aa';
+      ctx.shadowColor = '#00d4aa';
+      ctx.shadowBlur = 10;
+      ctx.beginPath();
+      ctx.arc(48, 40, 4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      ctx.fillStyle = '#00d4aa';
+      ctx.font = 'bold 11px monospace';
+      ctx.fillText('LOGICFORGE // SHOWCASE', 62, 44);
+
+      // Top-Right Live Time
+      ctx.fillStyle = 'rgba(10, 14, 23, 0.88)';
+      ctx.strokeStyle = 'rgba(239, 68, 68, 0.5)';
+      ctx.beginPath();
+      ctx.roundRect(1110, 24, 140, 32, 16);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = '#ef4444';
+      ctx.shadowColor = '#ef4444';
+      ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.arc(1128, 40, 4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      ctx.font = 'bold 11px monospace';
+      ctx.fillText('REC 30 FPS', 1142, 44);
+
+      // Bottom Title Card
+      ctx.fillStyle = 'rgba(10, 14, 23, 0.92)';
+      ctx.strokeStyle = 'rgba(0, 212, 170, 0.4)';
+      ctx.shadowColor = 'rgba(0, 212, 170, 0.2)';
+      ctx.shadowBlur = 20;
+
+      ctx.beginPath();
+      ctx.roundRect(260, 620, 760, 70, 14);
+      ctx.fill();
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      ctx.fillStyle = '#38bdf8';
+      ctx.font = 'bold 10px monospace';
+      ctx.fillText(tag.toUpperCase(), 284, 642);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 16px "Segoe UI", sans-serif';
+      ctx.fillText(title, 284, 664);
+
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '12px "Segoe UI", sans-serif';
+      ctx.fillText(desc, 284, 681);
+
+      // Progress bar
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+      ctx.fillRect(860, 650, 130, 4);
+      ctx.fillStyle = '#00d4aa';
+      ctx.fillRect(860, 650, 130 * Math.min(1, Math.max(0, progress)), 4);
+
+      ctx.restore();
+    }
+
+    function drawCursor(x, y, isClicking = false) {
+      ctx.save();
+      ctx.shadowColor = '#00d4aa';
+      ctx.shadowBlur = 15;
+
+      ctx.fillStyle = isClicking ? '#00d4aa' : 'rgba(0, 212, 170, 0.4)';
+      ctx.strokeStyle = '#00d4aa';
+      ctx.lineWidth = 2;
+
+      ctx.beginPath();
+      ctx.arc(x, y, isClicking ? 9 : 12, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      if (isClicking) {
+        ctx.beginPath();
+        ctx.arc(x, y, 22, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(0, 212, 170, 0.6)';
+        ctx.stroke();
+      }
+
+      ctx.restore();
+    }
+
+    function drawOutro(opacity) {
+      ctx.save();
+      ctx.globalAlpha = opacity;
+      ctx.fillStyle = '#060910';
+      ctx.fillRect(0, 0, 1280, 720);
+
+      const grad = ctx.createRadialGradient(640, 360, 50, 640, 360, 450);
+      grad.addColorStop(0, 'rgba(0, 212, 170, 0.2)');
+      grad.addColorStop(0.5, 'rgba(99, 102, 241, 0.1)');
+      grad.addColorStop(1, 'rgba(6, 9, 16, 0.95)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 1280, 720);
+
+      drawParticles();
+
+      ctx.shadowColor = 'rgba(0, 212, 170, 0.8)';
+      ctx.shadowBlur = 30;
+      ctx.fillStyle = '#00d4aa';
+      ctx.font = 'bold 52px "Segoe UI", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('LogicForge', 640, 310);
+      ctx.shadowBlur = 0;
+
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '18px monospace';
+      ctx.fillText('Learn to Think Like a Programmer', 640, 355);
+
+      const badges = ['Algorithms', 'Sequencing', 'Debugging', 'Conditionals', 'Loops', 'Variables'];
+      let startX = 320;
+      badges.forEach((b, i) => {
+        const bx = startX + i * 110;
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.06)';
+        ctx.strokeStyle = 'rgba(0, 212, 170, 0.3)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.roundRect(bx - 45, 410, 90, 28, 14);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#e2e8f0';
+        ctx.font = '11px monospace';
+        ctx.fillText(b, bx, 428);
+      });
+
+      ctx.fillStyle = '#00d4aa';
+      ctx.font = 'bold 14px monospace';
+      ctx.fillText('Open Source on GitHub // Level 01 Curriculum', 640, 500);
+
+      ctx.restore();
+    }
+
+    // Pure JavaScript WebM Muxer (Whammy implementation)
+    function createWebMMuxer() {
+      // EBML helper
+      function toHex(n) { return (n < 16 ? '0' : '') + n.toString(16); }
+      function hexToBytes(hex) {
+        const bytes = [];
+        for (let i = 0; i < hex.length; i += 2) bytes.push(parseInt(hex.substr(i, 2), 16));
+        return new Uint8Array(bytes);
+      }
+
+      function numToEBMLVarInt(num) {
+        let len = 1;
+        while (num >= (1 << (7 * len)) - 1 && len < 8) len++;
+        const bytes = new Uint8Array(len);
+        let mask = 0x80 >> (len - 1);
+        bytes[0] = mask | ((num >> (8 * (len - 1))) & 0xFF);
+        for (let i = 1; i < len; i++) {
+          bytes[i] = (num >> (8 * (len - 1 - i))) & 0xFF;
+        }
+        return bytes;
+      }
+
+      function makeElement(idBytes, dataBytes) {
+        const sizeBytes = numToEBMLVarInt(dataBytes.length);
+        const res = new Uint8Array(idBytes.length + sizeBytes.length + dataBytes.length);
+        res.set(idBytes, 0);
+        res.set(sizeBytes, idBytes.length);
+        res.set(dataBytes, idBytes.length + sizeBytes.length);
+        return res;
+      }
+
+      function concatArrays(arrays) {
+        let total = 0;
+        for (const a of arrays) total += a.length;
+        const res = new Uint8Array(total);
+        let offset = 0;
+        for (const a of arrays) {
+          res.set(a, offset);
+          offset += a.length;
+        }
+        return res;
+      }
+
+      return {
+        compile(frames, fps = 30) {
+          const width = 1280;
+          const height = 720;
+          const frameDurationMs = Math.round(1000 / fps);
+
+          // EBML Header
+          const header = hexToBytes('1a45dfa39f4286810142f7810142f2810442f381084282847765626d4287810242858102');
+
+          // Segment Info
+          const info = hexToBytes('1549a966992ad7b1830f42404d80844c6f676957a4844c6f67694489884074000000000000');
+
+          // Video Track Info
+          const trackEntryData = [
+            hexToBytes('d7810173c58800000000000000018381018685565f565038'), // Track 1, Video, V_VP8
+            makeElement(hexToBytes('e0'), concatArrays([
+              hexToBytes('b0820500'), // Width: 1280
+              hexToBytes('ba8202d0'), // Height: 720
+            ]))
+          ];
+          const tracks = makeElement(hexToBytes('1654ae6b'), makeElement(hexToBytes('ae'), concatArrays(trackEntryData)));
+
+          // Clusters
+          const clusterElements = [];
+          const CLUSTER_FRAME_COUNT = 30; // 1 cluster per second
+
+          for (let c = 0; c < frames.length; c += CLUSTER_FRAME_COUNT) {
+            const clusterFrames = frames.slice(c, c + CLUSTER_FRAME_COUNT);
+            const clusterTimecode = c * frameDurationMs;
+
+            const timecodeBytes = new Uint8Array([
+              (clusterTimecode >> 8) & 0xFF,
+              clusterTimecode & 0xFF
+            ]);
+            const clusterHeader = makeElement(hexToBytes('e7'), timecodeBytes);
+
+            const blockElements = [clusterHeader];
+
+            clusterFrames.forEach((vp8Frame, fIndex) => {
+              const relTime = fIndex * frameDurationMs;
+              const blockHeader = new Uint8Array([
+                0x81, // Track 1
+                (relTime >> 8) & 0xFF,
+                relTime & 0xFF,
+                0x80 // Keyframe flag
+              ]);
+
+              const simpleBlockData = new Uint8Array(blockHeader.length + vp8Frame.length);
+              simpleBlockData.set(blockHeader, 0);
+              simpleBlockData.set(vp8Frame, blockHeader.length);
+
+              blockElements.push(makeElement(hexToBytes('a3'), simpleBlockData));
+            });
+
+            clusterElements.push(makeElement(hexToBytes('1f43b675'), concatArrays(blockElements)));
+          }
+
+          const segment = makeElement(hexToBytes('18538067'), concatArrays([info, tracks, concatArrays(clusterElements)]));
+          return new Blob([header, segment], { type: 'video/webm' });
+        }
+      };
+    }
+
+    // Extract VP8 bitstream from WebP DataURL
+    function parseWebPToVP8(dataUrl) {
+      const b64 = dataUrl.split(',')[1];
+      const binary = atob(b64);
+      const bytes = new Uint8Array(binary.length);
+      for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+
+      // Search for 'VP8 ' chunk
+      for (let i = 0; i < bytes.length - 8; i++) {
+        if (bytes[i] === 0x56 && bytes[i+1] === 0x50 && bytes[i+2] === 0x38 && bytes[i+3] === 0x20) {
+          const vp8Length = bytes[i+4] | (bytes[i+5] << 8) | (bytes[i+6] << 16) | (bytes[i+7] << 24);
+          const vp8Start = i + 8;
+          return bytes.slice(vp8Start, vp8Start + vp8Length);
+        }
+      }
+      return bytes.slice(20); // Fallback to raw data
+    }
+
+    async function runVideoStudio() {
+      setStatus('LOADING SCREENSHOT ASSETS...');
+      await loadImages();
+      setStatus('ASSETS LOADED. RENDERING FRAMES...');
+
+      const FPS = 25;
+      const TOTAL_SECONDS = 15;
+      const TOTAL_FRAMES = FPS * TOTAL_SECONDS;
+      const frames = [];
+
+      for (let f = 0; f < TOTAL_FRAMES; f++) {
+        const time = f / FPS;
+        const progress = f / TOTAL_FRAMES;
+        ctx.clearRect(0, 0, 1280, 720);
+
+        // SCENE 1 (0s - 4.5s): Mission Control & Mascot
+        if (time < 4.5) {
+          const t = time / 4.5;
+          const zoom = 1 + easeOutQuad(t) * 0.08;
+          const panX = -20 * t;
+          const panY = -15 * t;
+
+          ctx.save();
+          ctx.translate(640, 360);
+          ctx.scale(zoom, zoom);
+          ctx.translate(-640 + panX, -360 + panY);
+          ctx.drawImage(imgDashboard, 0, 0, 1280, 820, 0, 0, 1280, 720);
+          ctx.restore();
+
+          drawParticles();
+
+          let cx = 640 + Math.sin(time * 2) * 100;
+          let cy = 340 + Math.cos(time * 2) * 50;
+          let click = false;
+          if (time > 1.5 && time < 2.5) {
+            cx = 960; cy = 320;
+            click = time > 1.8 && time < 2.2;
+          } else if (time >= 2.5) {
+            cx = 480; cy = 360;
+            click = time > 3.2 && time < 3.6;
+          }
+
+          drawCursor(cx, cy, click);
+          drawHUD('SECTOR 01: MISSION CONTROL', 'Gamified Computational Thinking', 'Cyberpunk interface featuring animated cadet companion Byte', t);
+        }
+
+        // SCENE 2 (4.5s - 9.0s): Tactical Robot Route (Mission 01)
+        else if (time >= 4.5 && time < 9.0) {
+          const t = (time - 4.5) / 4.5;
+          const zoom = 1 + easeInOutCubic(Math.min(1, t * 1.5)) * 0.12;
+          const panX = 40 * t;
+          const panY = -25 * t;
+
+          ctx.save();
+          ctx.translate(640, 360);
+          ctx.scale(zoom, zoom);
+          ctx.translate(-640 + panX, -360 + panY);
+          ctx.drawImage(imgRobot, 0, 0, 1280, 820, 0, 0, 1280, 720);
+          ctx.restore();
+
+          drawParticles();
+
+          let cx = 580;
+          let cy = 340;
+          let click = false;
+
+          if (t > 0.2 && t < 0.6) {
+            cx = 580 + ((Math.floor(time * 4) % 2) === 0 ? 0 : 50);
+            cy = 280;
+            click = (Math.floor(time * 8) % 2) === 0;
+          } else if (t >= 0.6) {
+            cx = 520;
+            cy = 500;
+            click = t > 0.65 && t < 0.8;
+          }
+
+          drawCursor(cx, cy, click);
+          drawHUD('MISSION 01: THE ROBOT ROUTE', 'Relative Heading & Algorithm Planning', 'Construct sequences of Move Forward and Turn commands to reach the exit portal', t);
+        }
+
+        // SCENE 3 (9.0s - 12.5s): Problem Analysis & Pseudocode
+        else if (time >= 9.0 && time < 12.5) {
+          const t = (time - 9.0) / 3.5;
+          const zoom = 1 + easeInOutCubic(Math.min(1, t * 1.2)) * 0.09;
+
+          ctx.save();
+          ctx.translate(640, 360);
+          ctx.scale(zoom, zoom);
+          ctx.translate(-640, -360 - 15 * t);
+          ctx.drawImage(imgPseudocode, 0, 0, 1280, 820, 0, 0, 1280, 720);
+          ctx.restore();
+
+          drawParticles();
+
+          let cx = 600 + Math.sin(t * Math.PI) * 80;
+          let cy = 380 + Math.cos(t * Math.PI) * 40;
+          let click = t > 0.3 && t < 0.5;
+
+          drawCursor(cx, cy, click);
+          drawHUD('MISSION 02: PROBLEM ANALYSIS', 'Flexible Pseudocode Verification', 'Syntax-forgiving logic validation with real-time format guidance', t);
+        }
+
+        // SCENE 4 (12.5s - 15.0s): Outro Card
+        else {
+          const t = (time - 12.5) / 2.5;
+          const introFade = Math.min(1, t * 2.5);
+          drawOutro(introFade);
+        }
+
+        // Capture WebP frame
+        const dataUrl = canvas.toDataURL('image/webp', 0.88);
+        const vp8Bytes = parseWebPToVP8(dataUrl);
+        frames.push(vp8Bytes);
+
+        if (f % 25 === 0) {
+          setStatus(`RENDERING: ${Math.round(progress * 100)}% (${f}/${TOTAL_FRAMES} FRAMES)`);
+          await new Promise(r => setTimeout(r, 10));
+        }
+      }
+
+      setStatus('MUXING WEBM VIDEO CONTAINER...');
+      const muxer = createWebMMuxer();
+      const videoBlob = muxer.compile(frames, FPS);
+
+      setStatus(`UPLOADING VIDEO (${(videoBlob.size / 1024 / 1024).toFixed(2)} MB)...`);
+      try {
+        const res = await fetch('/save-video', {
+          method: 'POST',
+          body: videoBlob
+        });
+        const json = await res.json();
+        setStatus('VIDEO SAVED SUCCESSFULLY!');
+        console.log('Video saved result:', json);
+      } catch (err) {
+        setStatus('UPLOAD ERROR: ' + err.message);
+        console.error(err);
+      }
+    }
+
+    window.addEventListener('load', () => {
+      setTimeout(runVideoStudio, 500);
+    });
+  </script>
+</body>
+</html>

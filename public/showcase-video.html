@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LogicForge: Official Cinematic Showcase Video</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #060910;
+      color: #e2e8f0;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      overflow-x: hidden;
+    }
+
+    /* Ambient glow background */
+    .bg-glow {
+      position: fixed;
+      inset: 0;
+      background: 
+        radial-gradient(circle at 20% 20%, rgba(0, 212, 170, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 80% 80%, rgba(99, 102, 241, 0.08) 0%, transparent 40%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      position: relative;
+      z-index: 10;
+      max-width: 1100px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+
+    /* Header Bar */
+    .header-bar {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 20px;
+      background: rgba(10, 14, 23, 0.8);
+      border: 1px solid rgba(0, 212, 170, 0.25);
+      border-radius: 12px;
+      backdrop-filter: blur(12px);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 700;
+      font-size: 18px;
+      color: #00d4aa;
+      letter-spacing: -0.5px;
+      text-decoration: none;
+    }
+
+    .badge {
+      background: rgba(0, 212, 170, 0.1);
+      border: 1px solid rgba(0, 212, 170, 0.3);
+      color: #00d4aa;
+      font-family: monospace;
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 999px;
+    }
+
+    /* Video Player Canvas Container */
+    .video-viewport {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: #0a0e17;
+      border: 1px solid rgba(0, 212, 170, 0.4);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(0, 212, 170, 0.15);
+    }
+
+    #video-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    /* Video Controls Bar */
+    .controls-panel {
+      width: 100%;
+      background: rgba(10, 14, 23, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 14px;
+      padding: 16px 20px;
+      backdrop-filter: blur(12px);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* Scrubber timeline */
+    .scrubber-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .time-label {
+      font-family: monospace;
+      font-size: 12px;
+      color: #94a3b8;
+      min-width: 45px;
+    }
+
+    .scrubber-track {
+      flex: 1;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .scrubber-fill {
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #00d4aa, #38bdf8);
+      border-radius: 3px;
+    }
+
+    .scrubber-thumb {
+      position: absolute;
+      top: 50%;
+      left: 0%;
+      width: 14px;
+      height: 14px;
+      background: #ffffff;
+      border: 2px solid #00d4aa;
+      box-shadow: 0 0 10px #00d4aa;
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .buttons-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .left-btns, .right-btns {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #f1f5f9;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn:hover {
+      background: rgba(0, 212, 170, 0.15);
+      border-color: rgba(0, 212, 170, 0.4);
+      color: #00d4aa;
+    }
+
+    .btn-primary {
+      background: #00d4aa;
+      border-color: #00d4aa;
+      color: #060910;
+    }
+
+    .btn-primary:hover {
+      background: #00f0c0;
+      border-color: #00f0c0;
+      color: #060910;
+      box-shadow: 0 0 20px rgba(0, 212, 170, 0.4);
+    }
+
+    /* Scene bookmarks */
+    .scene-pills {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      width: 100%;
+      padding-bottom: 4px;
+    }
+
+    .scene-pill {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-family: monospace;
+      color: #94a3b8;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .scene-pill:hover, .scene-pill.active {
+      background: rgba(0, 212, 170, 0.1);
+      border-color: rgba(0, 212, 170, 0.4);
+      color: #00d4aa;
+    }
+  </style>
+</head>
+<body>
+  <div class="bg-glow"></div>
+
+  <div class="container">
+    <!-- Header -->
+    <div class="header-bar">
+      <a href="/" class="brand">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+          <polyline points="2 17 12 22 22 17"></polyline>
+          <polyline points="2 12 12 17 22 12"></polyline>
+        </svg>
+        <span>LogicForge</span>
+      </a>
+      <div class="badge">CINEMATIC SHOWCASE // 60 FPS</div>
+      <a href="/" class="btn">Launch Web App</a>
+    </div>
+
+    <!-- Video Viewport -->
+    <div class="video-viewport">
+      <canvas id="video-canvas" width="1280" height="720"></canvas>
+    </div>
+
+    <!-- Controls Panel -->
+    <div class="controls-panel">
+      <!-- Scrubber -->
+      <div class="scrubber-wrap">
+        <span id="time-current" class="time-label">0:00</span>
+        <div id="scrubber-track" class="scrubber-track">
+          <div id="scrubber-fill" class="scrubber-fill"></div>
+          <div id="scrubber-thumb" class="scrubber-thumb"></div>
+        </div>
+        <span id="time-total" class="time-label">0:24</span>
+      </div>
+
+      <!-- Button Row -->
+      <div class="buttons-row">
+        <div class="left-btns">
+          <button id="btn-play" class="btn btn-primary">Pause</button>
+          <button id="btn-restart" class="btn">Replay</button>
+          <button id="btn-speed" class="btn">1.0x Speed</button>
+        </div>
+        <div class="right-btns">
+          <button id="btn-download" class="btn btn-primary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            Export Video (.webm)
+          </button>
+        </div>
+      </div>
+
+      <!-- Scene Quick Links -->
+      <div class="scene-pills">
+        <div class="scene-pill active" onclick="seekTo(0)">01 // Mission Control</div>
+        <div class="scene-pill" onclick="seekTo(5)">02 // Cadet Manual Demo</div>
+        <div class="scene-pill" onclick="seekTo(10)">03 // Robot Tactical Arena</div>
+        <div class="scene-pill" onclick="seekTo(15)">04 // Problem Analysis</div>
+        <div class="scene-pill" onclick="seekTo(19)">05 // Final Boss & Outro</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById('video-canvas');
+    const ctx = canvas.getContext('2d');
+    const btnPlay = document.getElementById('btn-play');
+    const btnRestart = document.getElementById('btn-restart');
+    const btnSpeed = document.getElementById('btn-speed');
+    const btnDownload = document.getElementById('btn-download');
+    const scrubberTrack = document.getElementById('scrubber-track');
+    const scrubberFill = document.getElementById('scrubber-fill');
+    const scrubberThumb = document.getElementById('scrubber-thumb');
+    const timeCurrent = document.getElementById('time-current');
+    const timeTotal = document.getElementById('time-total');
+
+    // Load website screenshots
+    const imgDashboard = new Image();
+    imgDashboard.src = '/screenshots/dashboard.png';
+
+    const imgRobot = new Image();
+    imgRobot.src = '/screenshots/mission-robot.png';
+
+    const imgPseudocode = new Image();
+    imgPseudocode.src = '/screenshots/mission-pseudocode.png';
+
+    const TOTAL_DURATION = 24.0; // 24 seconds
+    let currentTime = 0;
+    let isPlaying = true;
+    let playbackRate = 1.0;
+    let lastTimestamp = performance.now();
+
+    const particles = Array.from({ length: 45 }, () => ({
+      x: Math.random() * 1280,
+      y: Math.random() * 720,
+      char: ['01', '{ }', '< />', '=>', '0', '1', 'fn'][Math.floor(Math.random() * 7)],
+      opacity: Math.random() * 0.5 + 0.2,
+      speedY: Math.random() * 1.5 + 0.5,
+    }));
+
+    function drawParticles() {
+      ctx.fillStyle = '#00d4aa';
+      ctx.font = '11px monospace';
+      particles.forEach(p => {
+        ctx.globalAlpha = p.opacity * 0.4;
+        ctx.fillText(p.char, p.x, p.y);
+        p.y -= p.speedY;
+        if (p.y < 0) {
+          p.y = 720;
+          p.x = Math.random() * 1280;
+        }
+      });
+      ctx.globalAlpha = 1;
+    }
+
+    function easeInOutCubic(t) {
+      return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    }
+
+    function easeOutQuad(t) {
+      return 1 - (1 - t) * (1 - t);
+    }
+
+    function drawHUD(tag, title, desc, progress = 0) {
+      ctx.save();
+      // Top Cyber Badge
+      ctx.fillStyle = 'rgba(10, 14, 23, 0.88)';
+      ctx.strokeStyle = 'rgba(0, 212, 170, 0.5)';
+      ctx.lineWidth = 1;
+      
+      ctx.beginPath();
+      ctx.roundRect(30, 24, 260, 32, 16);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = '#00d4aa';
+      ctx.shadowColor = '#00d4aa';
+      ctx.shadowBlur = 10;
+      ctx.beginPath();
+      ctx.arc(48, 40, 4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      ctx.fillStyle = '#00d4aa';
+      ctx.font = 'bold 11px monospace';
+      ctx.fillText('LOGICFORGE // SHOWCASE', 62, 44);
+
+      // Top-Right Live Time
+      ctx.fillStyle = 'rgba(10, 14, 23, 0.88)';
+      ctx.strokeStyle = 'rgba(239, 68, 68, 0.5)';
+      ctx.beginPath();
+      ctx.roundRect(1110, 24, 140, 32, 16);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.fillStyle = '#ef4444';
+      ctx.shadowColor = '#ef4444';
+      ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.arc(1128, 40, 4, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.shadowBlur = 0;
+
+      ctx.font = 'bold 11px monospace';
+      ctx.fillText('60 FPS CINEMATIC', 1142, 44);
+
+      // Bottom Title Card
+      ctx.fillStyle = 'rgba(10, 14, 23, 0.92)';
+      ctx.strokeStyle = 'rgba(0, 212, 170, 0.4)';
+      ctx.shadowColor = 'rgba(0, 212, 170, 0.2)';
+      ctx.shadowBlur = 20;
+
+      ctx.beginPath();
+      ctx.roundRect(260, 620, 760, 70, 14);
+      ctx.fill();
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      ctx.fillStyle = '#38bdf8';
+      ctx.font = 'bold 10px monospace';
+      ctx.fillText(tag.toUpperCase(), 284, 642);
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 16px "Segoe UI", sans-serif';
+      ctx.fillText(title, 284, 664);
+
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '12px "Segoe UI", sans-serif';
+      ctx.fillText(desc, 284, 681);
+
+      // Progress bar
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.1)';
+      ctx.fillRect(860, 650, 130, 4);
+      ctx.fillStyle = '#00d4aa';
+      ctx.fillRect(860, 650, 130 * Math.min(1, Math.max(0, progress)), 4);
+
+      ctx.restore();
+    }
+
+    function drawCursor(x, y, isClicking = false) {
+      ctx.save();
+      ctx.shadowColor = '#00d4aa';
+      ctx.shadowBlur = 15;
+
+      ctx.fillStyle = isClicking ? '#00d4aa' : 'rgba(0, 212, 170, 0.4)';
+      ctx.strokeStyle = '#00d4aa';
+      ctx.lineWidth = 2;
+
+      ctx.beginPath();
+      ctx.arc(x, y, isClicking ? 9 : 12, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+
+      if (isClicking) {
+        ctx.beginPath();
+        ctx.arc(x, y, 22, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(0, 212, 170, 0.6)';
+        ctx.stroke();
+      }
+
+      ctx.restore();
+    }
+
+    function drawOutro(opacity) {
+      ctx.save();
+      ctx.globalAlpha = opacity;
+      ctx.fillStyle = '#060910';
+      ctx.fillRect(0, 0, 1280, 720);
+
+      const grad = ctx.createRadialGradient(640, 360, 50, 640, 360, 450);
+      grad.addColorStop(0, 'rgba(0, 212, 170, 0.2)');
+      grad.addColorStop(0.5, 'rgba(99, 102, 241, 0.1)');
+      grad.addColorStop(1, 'rgba(6, 9, 16, 0.95)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 1280, 720);
+
+      drawParticles();
+
+      ctx.shadowColor = 'rgba(0, 212, 170, 0.8)';
+      ctx.shadowBlur = 30;
+      ctx.fillStyle = '#00d4aa';
+      ctx.font = 'bold 52px "Segoe UI", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('LogicForge', 640, 310);
+      ctx.shadowBlur = 0;
+
+      ctx.fillStyle = '#94a3b8';
+      ctx.font = '18px monospace';
+      ctx.fillText('Learn to Think Like a Programmer', 640, 355);
+
+      const badges = ['Algorithms', 'Sequencing', 'Debugging', 'Conditionals', 'Loops', 'Variables'];
+      let startX = 320;
+      badges.forEach((b, i) => {
+        const bx = startX + i * 110;
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.06)';
+        ctx.strokeStyle = 'rgba(0, 212, 170, 0.3)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.roundRect(bx - 45, 410, 90, 28, 14);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = '#e2e8f0';
+        ctx.font = '11px monospace';
+        ctx.fillText(b, bx, 428);
+      });
+
+      ctx.fillStyle = '#00d4aa';
+      ctx.font = 'bold 14px monospace';
+      ctx.fillText('Open Source on GitHub // Level 01 Curriculum Ready', 640, 500);
+
+      ctx.restore();
+    }
+
+    function render(time) {
+      ctx.clearRect(0, 0, 1280, 720);
+
+      // SCENE 1 (0s - 6s): Mission Control & Hero Mascot
+      if (time < 6.0) {
+        const t = time / 6.0;
+        const zoom = 1 + easeOutQuad(t) * 0.08;
+        const panX = -20 * t;
+        const panY = -15 * t;
+
+        ctx.save();
+        ctx.translate(640, 360);
+        ctx.scale(zoom, zoom);
+        ctx.translate(-640 + panX, -360 + panY);
+        ctx.drawImage(imgDashboard, 0, 0, 1280, 820, 0, 0, 1280, 720);
+        ctx.restore();
+
+        drawParticles();
+
+        let cx = 640 + Math.sin(time * 2) * 100;
+        let cy = 340 + Math.cos(time * 2) * 50;
+        let click = false;
+        if (time > 1.8 && time < 3.2) {
+          cx = 960; cy = 320;
+          click = time > 2.2 && time < 2.6;
+        } else if (time >= 3.2) {
+          cx = 480; cy = 360;
+          click = time > 4.2 && time < 4.6;
+        }
+
+        drawCursor(cx, cy, click);
+        drawHUD('SECTOR 01: MISSION CONTROL', 'Gamified Computational Thinking', 'Cyberpunk interface featuring animated cadet companion Byte', t);
+      }
+
+      // SCENE 2 (6s - 13s): Tactical Robot Route (Mission 01)
+      else if (time >= 6.0 && time < 13.0) {
+        const t = (time - 6.0) / 7.0;
+        const zoom = 1 + easeInOutCubic(Math.min(1, t * 1.5)) * 0.12;
+        const panX = 40 * t;
+        const panY = -25 * t;
+
+        ctx.save();
+        ctx.translate(640, 360);
+        ctx.scale(zoom, zoom);
+        ctx.translate(-640 + panX, -360 + panY);
+        ctx.drawImage(imgRobot, 0, 0, 1280, 820, 0, 0, 1280, 720);
+        ctx.restore();
+
+        drawParticles();
+
+        let cx = 580;
+        let cy = 340;
+        let click = false;
+
+        if (t > 0.2 && t < 0.6) {
+          cx = 580 + ((Math.floor(time * 4) % 2) === 0 ? 0 : 50);
+          cy = 280;
+          click = (Math.floor(time * 8) % 2) === 0;
+        } else if (t >= 0.6) {
+          cx = 520;
+          cy = 500;
+          click = t > 0.65 && t < 0.8;
+        }
+
+        drawCursor(cx, cy, click);
+        drawHUD('MISSION 01: THE ROBOT ROUTE', 'Relative Heading & Algorithm Planning', 'Construct sequences of Move Forward and Turn commands to reach the exit portal', t);
+      }
+
+      // SCENE 3 (13s - 18s): Multi-Phase Problem Analysis & Pseudocode
+      else if (time >= 13.0 && time < 18.0) {
+        const t = (time - 13.0) / 5.0;
+        const zoom = 1 + easeInOutCubic(Math.min(1, t * 1.2)) * 0.09;
+
+        ctx.save();
+        ctx.translate(640, 360);
+        ctx.scale(zoom, zoom);
+        ctx.translate(-640, -360 - 15 * t);
+        ctx.drawImage(imgPseudocode, 0, 0, 1280, 820, 0, 0, 1280, 720);
+        ctx.restore();
+
+        drawParticles();
+
+        let cx = 600 + Math.sin(t * Math.PI) * 80;
+        let cy = 380 + Math.cos(t * Math.PI) * 40;
+        let click = t > 0.3 && t < 0.5;
+
+        drawCursor(cx, cy, click);
+        drawHUD('MISSION 02: PROBLEM ANALYSIS', 'Flexible Pseudocode Verification', 'Syntax-forgiving logic validation with real-time format guidance', t);
+      }
+
+      // SCENE 4 (18s - 24s): Cinematic Outro Card
+      else {
+        const t = (time - 18.0) / 6.0;
+        const introFade = Math.min(1, t * 2.0);
+        drawOutro(introFade);
+      }
+    }
+
+    function formatTime(s) {
+      const mins = Math.floor(s / 60);
+      const secs = Math.floor(s % 60);
+      return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    }
+
+    function tick(now) {
+      const dt = (now - lastTimestamp) / 1000;
+      lastTimestamp = now;
+
+      if (isPlaying) {
+        currentTime += dt * playbackRate;
+        if (currentTime >= TOTAL_DURATION) {
+          currentTime = 0; // Loop seamlessly
+        }
+      }
+
+      render(currentTime);
+
+      // Update UI Scrubber
+      const pct = (currentTime / TOTAL_DURATION) * 100;
+      scrubberFill.style.width = pct + '%';
+      scrubberThumb.style.left = pct + '%';
+      timeCurrent.textContent = formatTime(currentTime);
+
+      // Update pills
+      document.querySelectorAll('.scene-pill').forEach((p, idx) => {
+        const times = [0, 5, 10, 15, 19];
+        if (currentTime >= times[idx] && (idx === times.length - 1 || currentTime < times[idx + 1])) {
+          p.classList.add('active');
+        } else {
+          p.classList.remove('active');
+        }
+      });
+
+      requestAnimationFrame(tick);
+    }
+
+    function seekTo(s) {
+      currentTime = Math.max(0, Math.min(TOTAL_DURATION, s));
+    }
+
+    btnPlay.addEventListener('click', () => {
+      isPlaying = !isPlaying;
+      btnPlay.textContent = isPlaying ? 'Pause' : 'Play';
+      btnPlay.classList.toggle('btn-primary', isPlaying);
+    });
+
+    btnRestart.addEventListener('click', () => {
+      currentTime = 0;
+      isPlaying = true;
+      btnPlay.textContent = 'Pause';
+    });
+
+    btnSpeed.addEventListener('click', () => {
+      if (playbackRate === 1.0) playbackRate = 1.5;
+      else if (playbackRate === 1.5) playbackRate = 2.0;
+      else playbackRate = 1.0;
+      btnSpeed.textContent = `${playbackRate.toFixed(1)}x Speed`;
+    });
+
+    // Scrubber click
+    scrubberTrack.addEventListener('click', (e) => {
+      const rect = scrubberTrack.getBoundingClientRect();
+      const pos = (e.clientX - rect.left) / rect.width;
+      currentTime = pos * TOTAL_DURATION;
+    });
+
+    // Video Exporter
+    btnDownload.addEventListener('click', async () => {
+      btnDownload.textContent = 'Exporting (60 FPS)...';
+      btnDownload.disabled = true;
+
+      const stream = canvas.captureStream(60);
+      let mimeType = 'video/webm;codecs=vp9';
+      if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/webm;codecs=vp8';
+      if (!MediaRecorder.isTypeSupported(mimeType)) mimeType = 'video/webm';
+
+      const rec = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 10000000 });
+      const chunks = [];
+      rec.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+
+      rec.onstop = () => {
+        const blob = new Blob(chunks, { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'logic-forge-showcase.webm';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        btnDownload.innerHTML = `
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          Export Video (.webm)
+        `;
+        btnDownload.disabled = false;
+      };
+
+      // Play through from start for export
+      currentTime = 0;
+      isPlaying = true;
+      playbackRate = 1.0;
+      rec.start(100);
+
+      setTimeout(() => {
+        rec.stop();
+      }, TOTAL_DURATION * 1000 + 500);
+    });
+
+    // Start loop
+    requestAnimationFrame(tick);
+  </script>
+</body>
+</html>

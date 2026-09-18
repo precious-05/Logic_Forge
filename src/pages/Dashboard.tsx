@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
-  Target, Trophy, Flame, Star, Lock, ChevronRight, Play, Award, Zap, Sparkles, Terminal, Gamepad2, HelpCircle
+  Target, Trophy, Flame, Star, Lock, ChevronRight, Play, Award, Zap, Sparkles, Terminal, Gamepad2, HelpCircle, Film
 } from 'lucide-react'
 import { allLevels, level01 } from '../data/levels'
 import { ACHIEVEMENTS } from '../data/achievements'
@@ -93,6 +93,21 @@ export function Dashboard() {
               >
                 How To Play
               </Button>
+              <a
+                href="/showcase-video.html"
+                target="_blank"
+                rel="noreferrer"
+                className="w-full sm:w-auto"
+              >
+                <Button
+                  variant="ghost"
+                  size="lg"
+                  icon={Film}
+                  className="w-full text-forge-accent border border-forge-accent/30 hover:bg-forge-accent/15"
+                >
+                  Watch Video Reel
+                </Button>
+              </a>
               <span className="text-xs font-mono text-forge-muted text-center sm:text-left sm:ml-2">
                 {completedCount}/{totalMissions} Cleared
               </span>

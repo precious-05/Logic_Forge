@@ -60,6 +60,7 @@ LogicForge flips the model:
 * **Flexible Pseudocode Engine:** Intelligent whitespace normalization, quote stripping, and optional assignment parsing that evaluates logic without punishing syntax typos.
 * **Gamification System:** XP points, pilot levels, progress streaks, unlockable achievements, and progressive hints.
 * **Persistence:** Client-side state saved automatically to local storage with reset capabilities.
+* **Cinematic Video Showcase Reel:** Built-in interactive 60 FPS video player (`/showcase-video.html`) with dynamic camera pans, particle overlays, live robot execution, and one-click WebM video export.
 * **Educator Manual:** Complete solution manual provided in `TEACHER_SOLUTIONS_MANUAL.md` for classroom and teacher reference.
 
 ---
